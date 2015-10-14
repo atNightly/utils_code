@@ -28,12 +28,17 @@ int main()
 	//如果count的值和10相等，则把0写入，并返回0
 	assert(__sync_val_compare_and_swap(&count,10,0) == 10);
 	assert(count == 0);
+	
+	count = 11;
+	assert(__sync_val_compare_and_swap(&count,0,0) == 11);
+	assert(count == 11);
 
 //将count设置为10，然后返回count操作之前的值
-	assert(__sync_lock_test_and_set(&count,10) == 0);
+	assert(__sync_lock_test_and_set(&count,10) == 11);
 	assert(count == 10);
 
 //将count置为0
 	__sync_lock_release(&count);
 	assert(count == 0);
+
 }
