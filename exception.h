@@ -6,7 +6,6 @@
 class Exception : public std::exception
 {
 
-
 public:
 	explicit Exception(const char* what);
 	explicit Exception(const string& what);
@@ -19,11 +18,6 @@ private:
 	string m_stack;
 };
 
-
-int main()
-{
-	
-}
 
 
 #endif //end of _LIB_EXCEPTION_H_
