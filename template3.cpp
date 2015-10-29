@@ -46,9 +46,9 @@ class Managr : public Singleton<Managr>
 
 int main(int argc,char* argv[])
 {
-	new Manager;
+	Managr *managers = new Managr;
 	Managr& manager{Managr::GetSingleton()};
-	manager.Print();
+	manager.print();
 	delete Managr::GetSingletonPtr();
 	return 0;
 }
