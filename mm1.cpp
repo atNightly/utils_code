@@ -43,7 +43,7 @@ void CreateUniqueObject(UniqueMyclass& referenceToUniquePtr)
 int main(int argc,char* argv[])
 {
 	cout << "Begin Main" << endl;
-	UniqueMyclass  uniqueMyclass;
+	UniqueMyclass  uniqueMyclass{static_cast<UniqueMyclass>(new MyClass(20))};
 	CreateUniqueObject(uniqueMyclass);
 	cout << "Address in main's UniqueMyclass" << uniqueMyclass.get() << endl;
 	cout << dec << noshowbase << "Back in Main" << endl;
