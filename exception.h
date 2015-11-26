@@ -3,6 +3,8 @@
 
 #include <exception>
 #include <string>
+using namespace std;
+
 class Exception : public std::exception
 {
 

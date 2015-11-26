@@ -1,6 +1,11 @@
 #include <exception>
 #include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <execinfo.h>
+#include "exception.h"
 
+using namespace std;
 Exception::Exception(const char* what)
 					: m_message(what)
 {
@@ -27,7 +32,7 @@ const char* Exception::waht() const throw()
 
 const char * Exception::stackTrace()const throw()
 {
-	return stack.c_str();
+	return m_stack.c_str();
 }
 
 void Exception::fillStackTrace()
@@ -39,12 +44,10 @@ void Exception::fillStackTrace()
 	if (strings) {
 		for(int i = 0;i < nptrs;++i)
 		{
-			m_stack.append(string[i]);
-			m_stack.push_back("\n");
+			m_stack.append(strings[i]);
+			m_stack.append("\n");
 		}
 		free(strings);
 	}
 }
 
-
-#endif //end of _LIB_EXCEPTION_H_
