@@ -33,7 +33,7 @@ class Test {
                      const char* fname,long lineno);
     //用于初始化重定向，是重定向到标准输出还是文件
     public:
-        Test(ostream* osptr = &：cout) {
+        Test(ostream* osptr = &cout) {
             this->osptr = osptr;
             nPass = nFail = 0;    
         }
