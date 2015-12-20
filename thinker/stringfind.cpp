@@ -13,17 +13,13 @@ int main()
 
     //返回第一个与"wiads"中任何字符匹配的位置
     cout << s.find_first_of("wiads",0) << endl;
-    
     //返回最后一个与"wiads"中任何字符匹配的位置
     cout << s.find_last_of("wiads",0) << endl;
-    
     /*
         find_first_not_of();//语义和find_first_of相反
         find_last_not_of();
         rfind();
     */
-    
     s.erase(0,2);
     cout << s << endl;
-    
 }
