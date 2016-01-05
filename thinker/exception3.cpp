@@ -11,14 +11,13 @@ class base
             if (count == 3)
                 throw string("I am a error");
             count++;
-            cout << "construct success" << endl;    
         }
 
         ~base()
         {
-            cout << "I will destruct " << endl;    
+            cout << "I will destruct " << endl;
         }
-    private:    
+    private:
         static int count;
 };
 
@@ -28,12 +27,11 @@ int main()
 {
         try{
 
-            base test[5];    
+            base test[5];
 
         } catch(...){
-            
+
             cout << "catch some error" << endl;
-                
+
         }
-    while(1);
 }

@@ -22,7 +22,7 @@ Exception::Exception(const string& what)
 
 Exception::~Exception()throw()
 {
-	
+
 }
 
 const char* Exception::waht() const throw()
