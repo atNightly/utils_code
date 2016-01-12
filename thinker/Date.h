@@ -1,11 +1,7 @@
 #include <iomanip>
+#include <iosfwd>
+#include <iostream>
 
-namespace std {
-    template<class charT,class traits = char_traits<charT> >
-    class basic_ostream;
-    typedef basic_ostream<char> ostream;    
-    typedef basic_istream<char> istream;
-}
 
 using namespace std;
 class Date
@@ -13,26 +9,21 @@ class Date
   public:
     Date(int year,int month,int day)
          :m_day(day),m_month(month),m_year(year)
-    {   
-----
-    }   
+    {
+    }
     ~Date()
-    {   
-----
-    }   
-----
+    {
+    }
     int getMonth()const {
-        return m_month;----
-    }   
+        return m_month;
+    }
 
     int getDay()const {
-        return m_day;----
-    }   
-----
+        return m_day;
+    }
     int getYear()const {
         return m_year;
-    }   
-----
+    }
     int m_day;
     int m_month;
     int m_year;
@@ -44,11 +35,10 @@ ostream& operator<<(ostream& os,const Date& d) {
     char fillc = os.fill('0');
     //设置填充字符,当输出长度小于指定的长度的时候用于进行填充
     os<<setw(2) << d.getMonth() << '-' //setw用来设置输出长度
-      <<setw(2) << d.getDay() << '-' 
+      <<setw(2) << d.getDay() << '-'
       <<setw(4) << setfill(fillc) << d.getYear();
       //setfill还原回原来的填充字符
-    return os; 
-----
+    return os;
 }
 
 istream& operator>>(istream& is,Date& d) {
@@ -63,5 +53,5 @@ istream& operator>>(istream& is,Date& d) {
     if (dash != '-')
         is.setstate(ios::failbit);
     is >> d.m_year;
-    return is; 
+    return is;
 }

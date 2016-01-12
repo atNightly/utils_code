@@ -146,16 +146,85 @@ bool operator==(const char* lhs, const string& rhs);
 ## String的操作
 C++中的String提供了大量的字符串操作成员函数，几乎跟C库中的函数一样多，但是由于有重载，使String类的功能更加强大，更加易于使用。额外需要提到的一点就是，
 使用String的话就不需要在意字符串某尾的空字符了，如果是C语言的话，就需要确保字符串某尾有空字符，否则C的一些标准库可能无法正常工作了。
+
 ### String基本操作
 
 ```
 string s;
 s.empty(); //s为空返回true，否则返回false
-s.size(); //返回s中字符的个数 
+s.size();  //返回s中字符的个数 
+s1 + s2	   //字符串连接
+s1 = s2	   //字符串赋值
+s1 == s2   //字符串比较
+s1 != s2   //字符串比较h
+```
+这里提一点就是使用size()成员方法的时候返回的是string的大小，这个数值的类型是一个string的内部类型，是string::size_type类型，这是一个无符号类型的值,所以避免在表达式中混用带符号数和无符号,将可能产生意想不到的结果。
+
+### String求子串
+
+string的求子串操作
+```
+string s;
+s.substr(start,end);  //从start开始到end结束这段字符
+s.substr(start);      //从start开始到结束的这段字符
 ```
 
-### String的查找
+### string修改操作
 
-### String的删除
+```
+string s;
+s.insert(pos,args); //在pos之前插入args，pos在这里可以是迭代器，也可以是下标
+s.append(args);     //字符串的追加
+s.erase(pos,len)；  //删除从位置pos开始的len个字符
+s.assign(args);	   //把s替换为args，并返回指向s的引用
+s.replace(range,args); //删除s中range范围的字符，替换为args指定的字符，range可以是一个下标，也可以是一个长度，还可以是一个指向s的迭代器。
+```
+下面通过一段代码演示一下replace的使用。
 
-### 
+```
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int main()
+{
+	string s = "teststring";
+	cout << s.replace(s.begin(),s.begin()+3,"new") << endl;
+	cout << s.replace(0,4,"zhang") << endl;
+	
+}
+```
+上面介绍到的几个操作还有很多重载方式，args可以有多种形式，可以是一个字符串，也可以是一个string字符串，还可以是一个string对的迭代器等等。这里不详细说了，可以参考<<C++ primer 5th>>中的323页
+
+
+### String的搜索操作
+这个部分提供了很多有关搜索的函数，每个函数都有很多重载版本。每一个搜索操作都返回一个string::size_type类型的值，表明找到的字符再string的下标位置，如果没有找到则会返回string::npos，让我们来看看都有哪些版本的搜索函数吧。
+
+```
+string s;
+s.find(args);			//查找s中args第一次出现的位置
+s.rfind(args);			//逆向查找args最后一次出现的位置
+下面四个函数中查找的是args的子集
+s.find_first_of(args);		//在s中查找args中任何一个字符第一次出现的位置
+s.find_last_of(args);		//在s中查找args中任何一个字符最后一次出现的位置
+s.find_first_not_of(args);	//在s中查找第一个不在args中的字符
+s.find_last_not_of(args);	//在s中查找最后一个不在args中的字符
+```
+上面的args可以有多种形似，每一种形式就是一个函数重载，一般情况可以有如下几种形式:
+
+```
+c,pos		//pos可以省略默认是0，从s中的pos位置查找字符c
+s2,pos		//pos同上，从s中的pos位置查找字符串s2
+cp,pos		//pos同上,从s中的pos位置查找cp指针，指向的以空字符串结尾的C风格字符串
+cp,pos,n	//pos同上，从s中pos位置查找cp指针指向的以空字符串结尾的C风格字符串
+``` 
+可见一个简单的搜索操作居然有如此之多的函数重载，可想而知string的内部实现该有多少代码啊。
+
+
+## 小结
+String对于程序员的我们应该知道COW，知道String的线程安全性，会利用String提供的成员函数实现一些功能，而不是重复造轮子。总的来说在C++中我们应该尽量去使用String替换char，毕竟String的优点是大于缺点的。本文主要参考了
+C++ Primer，C++编程思想，和陈浩的几篇博文。
+
+## 参考文献
+
