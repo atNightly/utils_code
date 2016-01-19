@@ -16,11 +16,17 @@ using namespace std;
 
 int main()
 {
+    int a = 14;
+    cout.setf(ios::showbase);
+    cout.setf(ios::oct,ios::basefield);
+    cout << a << endl;
+/*
     ofstream out("log.txt");
     //当这个选项没有开启的时候,某些编辑器仅写入一个字母'o'到文件log.txt
     //开启单元缓冲器后则不会丢失任何数据
     out.setf(ios::unitbuf);
     out << "one" << endl;
     out << "two" << endl;
-    abort();           
+    abort();
+*/
 }
