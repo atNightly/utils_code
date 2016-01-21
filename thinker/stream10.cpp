@@ -10,7 +10,6 @@ int main()
     int i;
     float f;
     cin >> i >> f;
-    cin >> ws;
     string stuff;
     getline(cin,stuff);
     ostringstream os;
