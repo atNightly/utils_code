@@ -817,3 +817,125 @@ is-a和has-a的关系还是很好区别的，比如一个人，一个地址，�
 * 多重继承比单一继承复杂，它可能导致新的歧义性，以及对virtual继承的需要
 * virtual继承会增加大小，速度，初始化复杂度等等成本，如果virtual base classes不带任何数据，将是最具使用价值的情况
 
+## 条款41 了解隐式接口和编译期多态
+模板编程是一种隐式接口编译期多态技术，class则是显示接口，运行时多态
+
+* 对于class而言接口是显示的，以函数签名为中心，多态则是通过virtual函数发生在运行期。
+* 对于template而言，接口是隐式的，多态通过template具现化和函数重载解析发生在编译器
+
+## 条款42 了解typename的双重意义
+在模板中class和typename关键字没有区别，模板内的嵌套从属类型名称默认是被当成函数，只有在前面添加typename才会被当成一种类型。
+但是typename无法在成员初始化列表中作为base class修饰符，也无法出现在基类列表中。
+
+## 条款43 学习处理模板化基类内的名称
+
+```
+class CompanyA {
+    public:
+        void sendCleartext(const std::string& msg);
+        void sendEcrypted(const std::string& msg);
+}
+
+class CompanyB {
+    public:
+        void sendCleartext(const std::string& msg);
+        void sendEcrypted(const std::string& msg);
+}
+
+class MsgInfo{....};
+template<typename Company>
+class MsgSender {
+public:
+    void sendClear(const MsgInfo& info)
+    {
+        std::string msg;
+        Company c;
+        c.sendCleartext(msg);
+    }
+    void sendSecret(const MsgInfo& info)
+    {....}
+};
+上面这段代码看上去，工作良好，也的确如此。根据不同的Company，发送不同的消息。现在需要在发送消息的前后添加一些日志，于是有了下面的这个
+派生类
+
+template<typename Company>
+class LoggingMsgSender : public MsgSender<Company>
+{
+    public:
+        ....
+        void sendClearMsg(const MsgInfo& info)
+        {
+            //发送前些写log
+            sendClear(info);
+            //发送后写log
+        }      
+};
+为了避免名称遮掩，子类使用了另外一个名字。但是很可惜上面的代码无法编译通过，因为在调用sendClear的时候，会报不存在的错误。
+很明显这个函数是在base class中的，是存在的，为什么这里会报不存在的错误呢。现在假想一种场景，base class会被特化，很可能是一种
+完全特化的版本，那么这会导致base class没有sendClear这个接口，因此C++就明确的拒绝这种行为，不去base class中查找指定的方法。　
+```
+为了解决上面提出的这个问题，C++中有三个方法可以解决，方法如下:
+
+* 明确使用this
+
+```
+this->sendClear(info);
+```
+
+* using声明
+
+```
+public:
+    ....
+    using MsgSender<Company>::sendClear;
+    void sendClearMsg(const MsgInfo& info)
+    {
+            //发送前些写log
+            sendClear(info);
+            //发送后写log
+    }
+    
+```
+
+* 明确指出sendClear在base类中
+
+```
+MsgSender<Company>::sendClear(info);
+```
+但是上面的这个方法，存在一个问题，当sendClear是个虚函数的时候，会关闭virtual绑定行为。
+
+
+
+## 条款44 将与参数无关的代码抽离
+## 条款45 运用成员函数模板接收所有兼容类型
+C/C++语言中的指针做的很好的一件事就是支持隐式转换，Derived class指针可以隐式转换为base class指针，指向non-const对象的指针可以
+转换为指向const对象等等，下面是一个他们之间转换的例子:
+
+```
+class Top {....};
+class Middle: public Top {...};
+Top* pt1 = new Middle;
+Top* pt2 = new Bottom;
+const Top* pct2 = pt1;
+```
+上面的这种隐式转换得益于指针，但是不幸的是在C++中智能指针并不能自动去实现这种隐式转换，智能指针本身就是利用template去实现的，同一个
+template的不同具现体之间并不存在什么与生俱来的固有关系。例如下面的代码
+
+```
+template<typename T>
+class SmartPtr {
+    public:
+        explicit SmartPtr<T* realPtr>;
+        ....
+};
+SmartPtr<Top> pt1 = SmartPtr<Middle>(new Middle);
+SmartPtr<Top> pt2 = SmartPtr<Middle>(new Bottom);
+SmartPtr<const Top> pct2 = pt1; 
+```
+上面的代码无法编译通过， 所有Top和Middle有父子关系，如果是指针是可以隐式转换的，但是同一个template的不同具现体之间并不存在什么与生俱来
+的固有关系。 因此为了可以让上面的代码可以编译通过，需要给SmartPtr类提供兼容
+
+* 请使用member function templates(成员函数模板)生成，可接受所有兼容类型的函数
+* 如果你声明member function用于"泛化copy构造"或"泛化assignment操作"，你还是需要声明正常的copy构造函数和copy assignment操作符
+
+
