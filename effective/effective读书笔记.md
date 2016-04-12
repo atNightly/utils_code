@@ -938,4 +938,67 @@ SmartPtr<const Top> pct2 = pt1;
 * 请使用member function templates(成员函数模板)生成，可接受所有兼容类型的函数
 * 如果你声明member function用于"泛化copy构造"或"泛化assignment操作"，你还是需要声明正常的copy构造函数和copy assignment操作符
 
+## 条款46 需要类型转换时请为模板定义非成员函数
+只有non-member函数才有能力在所有的实参身上实施隐式类型转换，下面的例子演示了模板函数无法对所有实参实施隐式类型转换的场景。
 
+```
+template<typename T>
+class Rational {
+    Rational(const T& numerator = 0,
+             const T& denominator = 1);
+    const T numerator() const;
+    const T denominator() const;
+    .....
+};
+template<typename T>
+const Rational<T> operator*(const Rational<T>& lhs,
+                            const Rational<T>& rhs)
+{ ...... }
+```
+上面的乘法操作符使用了模板来实现，为了可以对任意实参都具备隐式类型转换的能力，所以采用了non-member函数，具体细节可以参考
+条款24，尽管如此下面的代码仍然无法通过编译。
+
+```
+Rational<int> oneHalf(1,2);
+Rational<int> result = oneHalf * 2; 
+```
+尽管可以通过oneHalf推导出第一个实参的类型是int，但是通过第二个参数无法推导出其类型，因为template函数在实参推导过程中
+从不进行隐式类型转换。为了解决这个问题可以通过在Rational加上一个friend函数声明即可解决问题,代码如下。
+
+```
+template<typename T>
+class Rational {
+public:
+    .....
+friend const Rational operator*(const Rational& lhs,
+                                const Rational& rhs);
+};
+template<typename T>
+const Rational<T> operator*(const Rational<T>& lhs,
+                            const Rational<T>& rhs);
+```
+
+当Rational具现化后，对应的友元函数`operator*`也会具现化一份，那么就变成了一个non-member函数了，此时就可以做隐式类型转换了。
+尽管如此，上面的代码在链接阶段却无法链接，原因在于我们通过模板具现化在类的内部产生了一个`operator*`的友元函数声明，但是还没有
+其定义，我们期望可以通过类外的`operator*`函数模板为我们提供其定义，但是这行不通。为了解决这个问题，需要将`operator*`的定义
+式写在类的内部。将声明和定义放在一起。现在就可以正常编译和链接了。
+
+* 当我们编写一个class template，而它所提供之，"与此template相关的"函数支持，"所有参数之隐式类型转换"时，请将那么函数定义为
+class template内部的friend函数。
+
+### 条款47 请使用traits classes表现类型信息
+简而言之就是在编译期获得类型信息，一般结合template function来完成针对不同的类型采取不同的操作这一功能。如果没有traits的话，那么
+这个template function会通过typeid得到类型信息，然后根据类型信息采取不同的操作，很显然typeid得到类型信息是一个运行期操作。因此有了
+traits classes，可以在编译期间获得类型信息。例如STL算法库中的advance算法，用于移动迭代器，对于某些迭代器只能每次移动一步，而对于
+随机迭代器可以一次移动N步，因此advance算法需要根据传入的迭代器类型采取不同的算法。为此我们需要给advance　提供一个traits classes。
+其实就是所有的自定义类型都提供一个typedef将自己的迭代器类型都通过typedef进行名称统一，然后traits classes再次通过typedef给这些
+自定义类型提供一个统一的名称，就这样就实现了编译器得到类型信息这个目的。但是advance还可以接收指针这种内置类型，我们没法给修改指针，让指针
+提供一个typedef，因此可以给advance提供一个针对指针的特化版本的实现。　
+
+* Traits classes使得"类型相关信息"在编译期可用，他们以templates和templates特化完成实现。
+* 整合重载技术后traits classes有可能在编译器对类型指向if..else测试
+
+
+### 条款48 认识template元编程
+
+* TMP(Template metaprogramming)模板元编程，可将工作由运行期移往编译期，因为得以实现早起错误侦测和更高的执行效率。
